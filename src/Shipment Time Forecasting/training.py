@@ -12,12 +12,15 @@ from preprocessing import Preprocessing
 from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
 
 # creating class for training
 class Training(RandomForestClassifier, LogisticRegression):
     
     # creating the constructor
-    def __init__(self, X_train, y_train, X_test, classifier):
+    def __init__(self, X_train, y_train, X_test, y_test, classifier):
         self.X_train = X_train
         self.y_train = y_train
         self.X_test = X_test
@@ -31,16 +34,42 @@ class Training(RandomForestClassifier, LogisticRegression):
                                                 )
         elif classifier == "LogisticRegression":
             self.model = LogisticRegression()
-            
+        self.y_predict = None
+        self.y_test = y_test
+        
+    # cross-validation
     def train_cross_val(self):
         scores = cross_val_score(self.model, self.X_train, self.y_train)
         return scores
     
+    # training the model
     def train_model(self):
         self.model.fit(self.X_train, self.y_train)
-        return self.model.predict(self.X_test)
+        self.y_predict = self.model.predict(self.X_test)
 
+    # returning prediction score
+    def return_predict(self):
+        return self.y_predict
     
+    # returning accuracy score
+    def return_accuracy_score(self):
+        return accuracy_score(self.y_predict, self.y_test)
+    
+    # returning confusion matric
+    def return_confusion_matrix(self):
+        return confusion_matrix(self.y_test, self.y_predict)
+    
+    # returning metrics report
+    def return_metric_report(self):
+        return precision_recall_fscore_support(self.y_test, self.y_predict)
+    
+    def return_feature_importance(self):
+        if classifier == 'RandomForestClassifier':
+            return self.model.feature_importances_
+        else:
+            return "Not Applicable"
+
+
 # loading the dataset
 dataset = pd.read_csv("../../data/DataCoSupplyChainDataset.csv", encoding='latin')
 org_dataset = dataset.copy()
@@ -112,20 +141,16 @@ pr.splitting_the_dataset()
 X_train, X_test, y_train, y_test = pr.return_train_test_split_dataset()
 
 # calling object for model training
-mt = Training(X_train, y_train, X_test, 'RandomForestClassfier')
+mt = Training(X_train, y_train, X_test, y_test, 'RandomForestClassfier')
 
-y_predict = mt.train_model()
+# training the model
+mt.train_model()
 
+# getting the accuracy score
+mt.return_accuracy_score()
 
-from sklearn.metrics import precision_recall_fscore_support
-from sklearn.metrics import confusion_matrix
+# getting the report
+mt.return_metric_report()
 
-confusion_matrix(y_test, y_predict)
-
-precision_recall_fscore_support(y_test, y_predict)
-
-from sklearn.metrics import accuracy_score
-
-accuracy_score(y_predict, y_test)
-
-
+# confusion matrix
+mt.return_confusion_matrix()
