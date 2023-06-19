@@ -6,8 +6,9 @@ Created on Sun Jun  4 14:41:34 2023
 """
 
 # importing the libraries
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.model_selection import train_test_split
+import pandas as pd
 
 # creating the class
 class Preprocessing:
@@ -24,9 +25,23 @@ class Preprocessing:
 
     # label encoding
     def label_encode(self, column_name):
+        print("abc")
         le = LabelEncoder()
         self.dataset[column_name] = le.fit_transform(self.dataset[column_name])
 
+    # one-hot encoding
+    def one_hot_encoding(self, column_name):
+        le2 = LabelEncoder()
+        le_encoded = le2.fit_transform(self.dataset[column_name])
+        if len(le2.classes_) > 2:
+            one_hot_encoder = OneHotEncoder(sparse=False)
+            one_hot_encoded = one_hot_encoder.fit_transform(le_encoded.reshape(-1,1))
+            df_encoded = pd.DataFrame(one_hot_encoded)
+            self.dataset = pd.merge(self.dataset, df_encoded, left_index=True, right_index=True, how='inner')
+            del self.dataset[column_name]
+        else:
+            self.dataset[column_name] = le_encoded
+        
     # deleting columns
     def drop_columns(self, column_name):
         del self.dataset[column_name]
