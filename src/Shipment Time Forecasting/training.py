@@ -183,7 +183,7 @@ pr.splitting_the_dataset()
 X_train, X_test, y_train, y_test = pr.return_train_test_split_dataset()
 
 # calling object for model training
-#mt = Training(X_train, y_train, X_test, y_test, 'RandomForestClassfier')
+mt = Training(X_train, y_train, X_test, y_test, 'RandomForestClassfier')
 #mt = Training(X_train, y_train, X_test, y_test, 'Gaussian Naive Bayes')
 #mt = Training(X_train, y_train, X_test, y_test, 'KNN')
 mt = Training(X_train, y_train, X_test, y_test, 'xgboost')
